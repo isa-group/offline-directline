@@ -13,13 +13,13 @@ const conversations: { [key: string]: IConversation } = {};
 const botDataStore: { [key: string]: IBotData } = {};
 
 // Creates websocket server
-function getWebsocketServer(botUrl, serviceUrl, conversationId, channelId) {
+function getWebsocketServer(botUrl, serviceUrl, conversationId) {
     const wss = new WebSocketServer({ noServer: true });
     wss.on('connection', function connection(ws) {
         ws.on('message', function incoming(message) {
             const incomingActivity = JSON.parse(message);
             // Make copy of activity. Add required fields
-            const activity = createMessageActivity(incomingActivity, serviceUrl, conversationId, channelId);
+            const activity = createMessageActivity(incomingActivity, serviceUrl, conversationId);
             sendClientActivity(activity, conversationId, botUrl, () => { }, () => { });
         });
     });
@@ -77,35 +77,46 @@ export const getRouter = (serviceUrl: string, botUrl: string): express.Router =>
         res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-ms-bot-agent');
         next();
     });
-
     // CLIENT ENDPOINT
     router.options('/directline', (req, res) => {
         res.status(200).end();
     });
 
+    async function postData(url = '', data = {}) {
+        const response = await fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer',
+            body: JSON.stringify(data)
+        });
+        return response.json();
+    }
+
     // Creates a conversation
-    router.post('/directline/conversations', (req, res) => {
+    router.post('/start', (req, res) => {
         const conversationId: string = uuidv4().toString();
         conversations[conversationId] = {
             conversationId,
             history: [],
-            webSocketServer: getWebsocketServer(botUrl, serviceUrl, conversationId, req.body.channelId)
+            webSocketServer: getWebsocketServer(botUrl, serviceUrl, conversationId)
         };
         console.log('Created conversation with conversationId: ' + conversationId);
-        const activity = createConversationUpdateActivity(serviceUrl, conversationId, req.body.channelId);
-        fetch(botUrl, {
-            method: 'POST',
-            body: JSON.stringify(activity),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        }).then((response) => {
-            res.status(response.status).send({
-                conversationId,
-                expiresIn,
-                streamUrl: serviceUrl + "/directline/stream?id=" + conversationId
+
+        postData(botUrl + "/start", {})
+            .then((data) => {
+                res.status(200).send({
+                    conversationId,
+                    expiresIn,
+                    streamUrl: serviceUrl + "/directline/stream?id=" + conversationId,
+                    data
+                });
             });
-        });
     });
 
     // Reconnect API
@@ -141,7 +152,7 @@ export const getRouter = (serviceUrl: string, botUrl: string): express.Router =>
     router.post('/directline/conversations/:conversationId/activities', (req, res) => {
         const incomingActivity = req.body;
         // Make copy of activity. Add required fields
-        const activity = createMessageActivity(incomingActivity, serviceUrl, req.params.conversationId, incomingActivity.channelId);
+        const activity = createMessageActivity(incomingActivity, serviceUrl, req.params.conversationId);
 
         sendClientActivity(activity, req.params.conversationId, botUrl, (response) => {
             res.status(response.status).json({ id: activity.id })
@@ -297,14 +308,14 @@ const deleteStateForUser = (req: express.Request, res: express.Response) => {
 };
 
 // CLIENT ENDPOINT HELPERS
-const createMessageActivity = (incomingActivity: IMessageActivity, serviceUrl: string, conversationId: string, channelId: string): IMessageActivity => {
-    return { ...incomingActivity, channelId: channelId, serviceUrl, conversation: { id: conversationId }, id: uuidv4() };
+const createMessageActivity = (incomingActivity: IMessageActivity, serviceUrl: string, conversationId: string): IMessageActivity => {
+    return { ...incomingActivity, channelId: 'emulator', serviceUrl, conversation: { id: conversationId }, id: uuidv4() };
 };
 
-const createConversationUpdateActivity = (serviceUrl: string, conversationId: string, channelId: string): IConversationUpdateActivity => {
+const createConversationUpdateActivity = (serviceUrl: string, conversationId: string): IConversationUpdateActivity => {
     const activity: IConversationUpdateActivity = {
         type: 'conversationUpdate',
-        channelId: channelId,
+        channelId: 'emulator',
         serviceUrl,
         conversation: { id: conversationId },
         id: uuidv4(),
