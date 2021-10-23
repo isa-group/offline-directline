@@ -82,24 +82,8 @@ export const getRouter = (serviceUrl: string, botUrl: string): express.Router =>
         res.status(200).end();
     });
 
-    async function postData(url = '', data = {}) {
-        const response = await fetch(url, {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            redirect: 'follow',
-            referrerPolicy: 'no-referrer',
-            body: JSON.stringify(data)
-        });
-        return response.json();
-    }
-
     // Creates a conversation
-    router.post('/start', (req, res) => {
+    router.post('/directline/conversations', (req, res) => {
         const conversationId: string = uuidv4().toString();
         conversations[conversationId] = {
             conversationId,
@@ -108,15 +92,20 @@ export const getRouter = (serviceUrl: string, botUrl: string): express.Router =>
         };
         console.log('Created conversation with conversationId: ' + conversationId);
 
-        postData(botUrl + "/start", {})
-            .then((data) => {
-                res.status(200).send({
-                    conversationId,
-                    expiresIn,
-                    streamUrl: serviceUrl + "/directline/stream?id=" + conversationId,
-                    data
-                });
+        const activity = createConversationUpdateActivity(serviceUrl, conversationId);
+        fetch(botUrl, {
+            method: 'POST',
+            body: JSON.stringify(activity),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then((response) => {
+            res.status(response.status).send({
+                conversationId,
+                expiresIn,
+                streamUrl: serviceUrl + "/directline/stream?id=" + conversationId
             });
+        });
     });
 
     // Reconnect API
