@@ -12,9 +12,27 @@ NOTE: Not all routes (e.g. attachments) are fully implemented in this package. F
 
 ## To launch the project locally
 
+First, you have to set the BOT_URL environment variable in order for offline-directline to connect to the bot.
+
 ```sh
 npm run build
 npm start
+```
+
+## Run with Docker
+
+This project can be built as a docker image. Just open a console and type:
+
+```sh
+docker build . -t offline-directline
+```
+
+To run this image you have to expose port 3001 and set the corresponding BOT_URL environment variable.
+
+You can use this command as reference:
+
+```sh
+docker run -p 3001:3001 -e BOT_URL="http://localhost:8080/api/messages" -d offline-directline
 ```
 
 ## Installation
