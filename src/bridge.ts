@@ -214,14 +214,14 @@ export const getRouter = (serviceUrl: string, botUrl: string): express.Router =>
  * @param conversationInitRequired Requires that a conversation is initialized before it is accessed, returning a 400
  * when not the case. If set to false, a new conversation reference is created on the fly. This is true by default.
  */
-export const initializeRoutes = (app: express.Express, port: number = 3000, botUrl: string) => {
+export const initializeRoutes = (app: express.Express, botUrl: string) => {
     conversationsCleanup();
 
-    const directLineEndpoint = `http://127.0.0.1:${port}`;
+    const directLineEndpoint = process.env.DIRECTLINE_ENDPOINT + ":" + process.env.DIRECTLINE_PORT;
     const router = getRouter(directLineEndpoint, botUrl);
 
     app.use(router);
-    const server = app.listen(port, () => {
+    const server = app.listen(process.env.DIRECTLINE_PORT, () => {
         console.log(`Listening for messages from client on ${directLineEndpoint}`);
         console.log(`Routing messages to bot on ${botUrl}`);
     });
