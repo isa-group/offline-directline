@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const directline = require("../dist/bridge");
 const express = require("express");
 
