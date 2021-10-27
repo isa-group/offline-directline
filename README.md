@@ -12,9 +12,10 @@ NOTE: Not all routes (e.g. attachments) are fully implemented in this package. F
 
 ## To launch the project locally
 
-First, you have to set the BOT_URL environment variable in order for offline-directline to connect to the bot.
+First, you have to set the BOT_URL, DIRECTLINE_ENDPOINT and DIRECTLINE_PORT environment variables in order for offline-directline to connect to the bot.
 
 ```sh
+npm install
 npm run build
 npm start
 ```
