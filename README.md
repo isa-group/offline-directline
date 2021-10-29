@@ -28,12 +28,15 @@ This project can be built as a docker image. Just open a console and type:
 docker build . -t offline-directline
 ```
 
-To run this image you have to expose port 3001 and set the corresponding BOT_URL environment variable.
+To run this image you have to expose port 3001 and set the corresponding environment variables:
+
+- BOT_URL = The address of the bot backend.
+- DIRECTLINE_ENDPOINT = The address where this server is going to be hosted (in the format "http://domain").
 
 You can use this command as reference:
 
 ```sh
-docker run -p 3001:3001 -e BOT_URL="http://localhost:8080/api/messages" -d offline-directline
+docker run -p 3001:3001 -e BOT_URL="http://host.docker.internal:8080/api/messages" -e DIRECTLINE_ENDPOINT="http://host.docker.internal" -d offline-directline
 ```
 
 ## Installation
