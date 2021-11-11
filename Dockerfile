@@ -17,4 +17,4 @@ RUN npm run build; exit 0
 EXPOSE 3001
 
 # run offline-directline
-CMD [ "npm", "start" ]
+CMD [ "npm", "run", "directline" ]

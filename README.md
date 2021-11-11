@@ -12,12 +12,34 @@ NOTE: Not all routes (e.g. attachments) are fully implemented in this package. F
 
 ## To launch the project locally
 
-First, you have to set the BOT_URL, DIRECTLINE_ENDPOINT and DIRECTLINE_PORT environment variables in order for offline-directline to connect to the bot.
+First, you need to configure and build the project:
 
 ```sh
 npm install
 npm run build
-npm start
+```
+
+Then, you have to set the BOT_URL, DIRECTLINE_ENDPOINT and DIRECTLINE_PORT environment variables in order for offline-directline to connect to the bot and then run it:
+
+```sh
+npm run directline
+```
+
+Or you can also send this information in the command line:
+```sh
+Usage: npm run directline -- [options]
+
+Options:
+  -d, --directline <directline>  The endpoint where offline-directline will run without port information (default: "http://127.0.0.1", env: DIRECTLINE_ENDPOINT)
+  -p, --port <port>              The port where offline-directline will listen (default: "3001", env: DIRECTLINE_PORT)
+  -b, --bot <bot>                The endpoint/port where your bot lives (default: "http://127.0.0.1:3978/api/messages", env: BOT_URL)
+  -h, --help                     display help for command
+```
+
+For instance: 
+
+```sh
+npm run directline -- -d http://127.0.0.1 -p 3001 -b http://127.0.0.1:3878/api/messages
 ```
 
 ## Run with Docker
