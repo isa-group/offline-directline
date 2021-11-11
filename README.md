@@ -12,9 +12,53 @@ NOTE: Not all routes (e.g. attachments) are fully implemented in this package. F
 
 ## To launch the project locally
 
+First, you need to configure and build the project:
+
 ```sh
+npm install
 npm run build
-npm start
+```
+
+Then, you have to set the BOT_URL, DIRECTLINE_ENDPOINT and DIRECTLINE_PORT environment variables in order for offline-directline to connect to the bot and then run it:
+
+```sh
+npm run directline
+```
+
+Or you can also send this information in the command line:
+```sh
+Usage: npm run directline -- [options]
+
+Options:
+  -d, --directline <directline>  The endpoint where offline-directline will run without port information (default: "http://127.0.0.1", env: DIRECTLINE_ENDPOINT)
+  -p, --port <port>              The port where offline-directline will listen (default: "3001", env: DIRECTLINE_PORT)
+  -b, --bot <bot>                The endpoint/port where your bot lives (default: "http://127.0.0.1:3978/api/messages", env: BOT_URL)
+  -h, --help                     display help for command
+```
+
+For instance: 
+
+```sh
+npm run directline -- -d http://127.0.0.1 -p 3001 -b http://127.0.0.1:3878/api/messages
+```
+
+## Run with Docker
+
+This project can be built as a docker image. Just open a console and type:
+
+```sh
+docker build . -t offline-directline
+```
+
+To run this image you have to expose port 3001 and set the corresponding environment variables:
+
+- BOT_URL = The address of the bot backend.
+- DIRECTLINE_ENDPOINT = The address where this server is going to be hosted (in the format "http://domain").
+
+You can use this command as reference:
+
+```sh
+docker run -p 3001:3001 -e BOT_URL="http://host.docker.internal:8080/api/messages" -e DIRECTLINE_ENDPOINT="http://host.docker.internal" -d offline-directline
 ```
 
 ## Installation
@@ -93,7 +137,7 @@ Offline directline doesn't require a token or secret, so don't worry about these
 
 Once everything is running, you should see messages sent in through webchat passed through to your bot and vice versa. Your bot should also be able to set privateConversationData, conversationData and userData as offered by the botbuilder SDKs.
 
-## PPIBot 
+## Interaction with offline-directline
 ![conversation_creation](https://user-images.githubusercontent.com/62081471/138552358-5e02b50e-252a-44e6-ab0d-e8ac4fba229f.png)
 
 
@@ -129,6 +173,4 @@ the bot sends a welcome message just after the connection is created.
 5. Eventually, the bot will compute an answer and it will send it using Bot Connector API.
 
 6. Now the offline-directline server receives the answer and it saves it in the conversation history, waiting for the frontend to retrieve it using Direct Line API 3.0. Offline-directline will also broadcast the activity through the corresponding WebSocket server so everybody in the conversation can listen to it instantly.
-
-
 
