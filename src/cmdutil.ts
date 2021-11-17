@@ -2,6 +2,7 @@
 import { Command, Option } from 'commander';
 import * as express from 'express';
 import * as directline from './bridge';
+require("dotenv").config()
 
 const DEFAULT_DIRECTLINE = "http://127.0.0.1";
 const DEFAULT_PORT = "3001";
