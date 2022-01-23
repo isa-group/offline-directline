@@ -330,6 +330,7 @@ export const getRouter = (
 
 /**
  * @param app The express app where your offline-directline endpoint will live
+ * @param endpoint The hostname where your offline-directline will be hosted
  * @param port The port where your offline-directline will be hosted
  * @param botUrl The url of the bot (e.g. http://127.0.0.1:3978/api/messages)
  * @param conversationInitRequired Requires that a conversation is initialized before it is accessed, returning a 400
