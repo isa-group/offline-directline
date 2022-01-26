@@ -153,10 +153,19 @@ export const getRouter = (
   });
 
   // Reconnect API
-  router.get("/v3/directline/conversations/:conversationId", (req, res) => {
-    console.warn(
-      "/v3/directline/conversations/:conversationId not implemented"
-    );
+  router.get("/directline/conversations/:conversationId", async (req, res) => {
+    const conversation = await store.getConversation(req.params.conversationId);
+    if (conversation) {
+      res.status(200).json({
+        conversationId: conversation.conversationId,
+        expiresIn,
+        streamUrl:
+          serviceUrl + "/directline/stream?id=" + conversation.conversationId,
+      });
+    } else {
+      // Conversation was never initialized
+      res.status(400).send();
+    }
   });
 
   // Gets activities from store (local history array for now)
